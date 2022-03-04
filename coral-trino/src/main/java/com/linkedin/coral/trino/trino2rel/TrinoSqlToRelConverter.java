@@ -50,10 +50,6 @@ class TrinoSqlToRelConverter extends SqlToRelConverter {
     super(viewExpander, validator, catalogReader, cluster, convertletTable, config);
   }
 
-  // This differs from base class in two ways:
-  // 1. This does not validate the type of converted rel rowType with that of validated node. This is because
-  //    hive is lax in enforcing view schemas.
-  // 2. This skips calling some methods because (1) those are private, and (2) not required for our usecase
   public RelRoot convertQuery(SqlNode query, final boolean needsValidation, final boolean top) {
     if (needsValidation) {
       query = validator.validate(query);
