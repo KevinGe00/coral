@@ -21,21 +21,29 @@ import org.apache.calcite.sql.type.SqlTypeName;
 
 import com.linkedin.coral.common.transformers.SqlCallTransformer;
 
-import static org.apache.calcite.rel.rel2sql.SqlImplementor.*;
 import static org.apache.calcite.sql.parser.SqlParserPos.*;
 
 
 /**
- * This class transforms the ordering in the input SqlCall to be compatible with Trino engine.
- * There is no need to override ASC inputs since the default null orderings of Coral IR, Hive and Trino all match.
- * However, "DESC NULLS LAST" need to be overridden to remove the redundant "NULLS LAST" since
- * Trino defaults to a NULLS LAST ordering for DESC anyways.
+ * This class transforms SqlCalls with Charset support on to be compatible Trino engine. Charset support
+ * enabled determines whether the dialect supports character set names as part of a data type, for instance
+ * VARCHAR(30) CHARACTER SET `ISO-8859-1`.
  *
- * For example, "SELECT * FROM TABLE_NAME ORDER BY COL_NAME DESC NULLS LAST "
- * is transformed to "SELECT * FROM TABLE_NAME ORDER BY COL_NAME DESC"
+ * For example, "SELECT CAST(2.3 AS VARCHAR(65535) CHARACTER SET "ISO-8859-1")
+ * FROM (VALUES  (0)) AS "t" ("ZERO")"
+ * is transformed to "SELECT CAST(2.3 AS VARCHAR(65535)")
+ *  * FROM (VALUES  (0)) AS "t" ("ZERO")"
  *
- * Also, "SELECT ROW_NUMBER() OVER (PARTITION BY a ORDER BY b DESC NULLS LAST) AS rid FROM foo"
- * is transformed to "SELECT ROW_NUMBER() OVER (PARTITION BY a ORDER BY b DESC) AS rid FROM foo"
+ * Also, "SELECT "if"(FALSE, NULL, CAST(ROW('') AS ROW("a" CHAR(0) CHARACTER SET "ISO-8859-1")))
+ * FROM (VALUES  (0)) AS "t" ("ZERO")"
+ * is transformed to "SELECT "if"(FALSE, NULL, CAST(ROW('') AS ROW("a" CHAR(0))))
+ * FROM (VALUES  (0)) AS "t" ("ZERO")"
+ *
+ * Also, "SELECT CAST(ROW(ARRAY[CAST('tmp' AS VARCHAR(65535) CHARACTER SET "ISO-8859-1")]) AS ROW("value" ARRAY<VARCHAR(65535) CHARACTER SET "ISO-8859-1">))
+ * FROM (VALUES  (0)) AS "t" ("ZERO")"
+ * is transformed to "SELECT CAST(ROW(ARRAY[CAST('tmp' AS VARCHAR(65535))]) AS ROW("value" ARRAY<VARCHAR(65535)>))
+ * FROM (VALUES  (0)) AS "t" ("ZERO")"
+ *
  */
 
 //ARRAY[CAST('tmp' AS VARCHAR(65535))]
