@@ -24,6 +24,7 @@ import com.linkedin.coral.hive.hive2rel.functions.HiveRLikeOperator;
 import com.linkedin.coral.hive.hive2rel.functions.StaticHiveFunctionRegistry;
 import com.linkedin.coral.trino.rel2trino.functions.TrinoElementAtFunction;
 import com.linkedin.coral.trino.rel2trino.transformers.AsOperatorTransformer;
+import com.linkedin.coral.trino.rel2trino.transformers.CharSetSupportTransformer;
 import com.linkedin.coral.trino.rel2trino.transformers.CollectListOrSetFunctionTransformer;
 import com.linkedin.coral.trino.rel2trino.transformers.CoralRegistryOperatorRenameSqlCallTransformer;
 import com.linkedin.coral.trino.rel2trino.transformers.CurrentTimestampTransformer;
@@ -126,7 +127,7 @@ public class CoralToTrinoSqlCallConverter extends SqlShuttle {
         new GenericCoralRegistryOperatorRenameSqlCallTransformer(),
 
         new ReturnTypeAdjustmentTransformer(configs), new UnnestOperatorTransformer(), new AsOperatorTransformer(),
-        new JoinSqlCallTransformer(), new NullOrderingTransformer());
+        new JoinSqlCallTransformer(), new NullOrderingTransformer(), new CharSetSupportTransformer());
   }
 
   private SqlOperator hiveToCoralSqlOperator(String functionName) {

@@ -25,10 +25,6 @@ public class TrinoSqlDialect extends SqlDialect {
     super(context);
   }
 
-  @Override
-  public boolean supportsCharSet() {
-    return false;
-  }
 
   /**
    * Override this method so that so that table alias is prepended to all field references (e.g., "table.column"
