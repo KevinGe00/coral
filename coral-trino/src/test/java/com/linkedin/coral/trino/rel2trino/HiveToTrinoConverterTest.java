@@ -328,8 +328,7 @@ public class HiveToTrinoConverterTest {
 
   @Test
   public void testNamedStructWithArrayWithoutType() {
-    RelNode relNode =
-        TestUtils.getHiveToRelConverter().convertSql("SELECT NAMED_STRUCT('value', NAMED_STRUCT('value2', ARRAY()))");
+    RelNode relNode = TestUtils.getHiveToRelConverter().convertSql("SELECT NAMED_STRUCT('value', ARRAY())");
     String targetSql = "SELECT CAST(ROW(ARRAY[]) AS ROW(\"value\" ARRAY<VARCHAR(65535)>))\n"
         + "FROM (VALUES  (0)) AS \"t\" (\"ZERO\")";
 
