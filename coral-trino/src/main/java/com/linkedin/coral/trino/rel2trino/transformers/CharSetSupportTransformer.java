@@ -6,8 +6,8 @@
 package com.linkedin.coral.trino.rel2trino.transformers;
 
 import java.util.List;
-
 import java.util.stream.Collectors;
+
 import org.apache.calcite.sql.SqlArrayTypeSpec;
 import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
@@ -25,7 +25,6 @@ import org.apache.calcite.sql.type.SqlTypeName;
 import com.linkedin.coral.common.transformers.SqlCallTransformer;
 
 import static org.apache.calcite.sql.parser.SqlParserPos.*;
-
 
 ///**
 // * This class transforms SqlCalls with Charset support on to be compatible Trino engine. Charset support
@@ -47,6 +46,7 @@ import static org.apache.calcite.sql.parser.SqlParserPos.*;
 // * is transformed to "SELECT CAST(ROW(ARRAY[CAST('tmp' AS VARCHAR(65535))]) AS ROW("value" ARRAY<VARCHAR(65535)>))
 // * FROM (VALUES  (0)) AS "t" ("ZERO")"
 // */
+
 
 public class CharSetSupportTransformer extends SqlCallTransformer {
   @Override
@@ -84,7 +84,6 @@ public class CharSetSupportTransformer extends SqlCallTransformer {
     return sqlCall;
   }
 
-
   private static SqlRowTypeSpec transformRow(SqlRowTypeSpec rowTypeSpec) {
     String nameSpecType;
     List<SqlDataTypeSpec> fieldTypeSpecs = rowTypeSpec.getFieldTypeSpecs();
@@ -92,13 +91,13 @@ public class CharSetSupportTransformer extends SqlCallTransformer {
         fieldTypeSpecs.stream().map(CharSetSupportTransformer::transformRowItem).collect(Collectors.toList()),
         rowTypeSpec.getParserPosition());
 
-//
-//    for (int j = 0; j < fieldTypeSpecs.size(); j++) {
-//      SqlRowTypeSpec rowTypeSpec1 = transformRow(rowTypeSpec, fieldTypeSpecs, j);
-////      if (rowTypeSpec1 != null) {
-////        return rowTypeSpec1;
-////      }
-//    }
+    //
+    //    for (int j = 0; j < fieldTypeSpecs.size(); j++) {
+    //      SqlRowTypeSpec rowTypeSpec1 = transformRow(rowTypeSpec, fieldTypeSpecs, j);
+    ////      if (rowTypeSpec1 != null) {
+    ////        return rowTypeSpec1;
+    ////      }
+    //    }
 
   }
 
@@ -124,16 +123,16 @@ public class CharSetSupportTransformer extends SqlCallTransformer {
         && (nameSpecType == "CHAR" || nameSpecType == "VARCHAR")) {
       SqlBasicTypeNameSpec basicTypeNameSpec = (SqlBasicTypeNameSpec) rowTypeNameSpec;
 
-      return createSqlDataTypeSpec(type,
-            createNoCharSetSqlBasicTypeNameSpec(nameSpecType, basicTypeNameSpec));
+      return createSqlDataTypeSpec(type, createNoCharSetSqlBasicTypeNameSpec(nameSpecType, basicTypeNameSpec));
 
     } else if (rowTypeNameSpec instanceof SqlRowTypeNameSpec) {
 
-        return transformRow((SqlRowTypeSpec) type);
+      return transformRow((SqlRowTypeSpec) type);
     } else if (rowTypeNameSpec instanceof SqlMapTypeNameSpec) {
       // MAP<VARCHAR(2147483647) CHARACTER SET `ISO-8859-1`, VARCHAR(2147483647) CHARACTER SET `ISO-8859-1`>
 
-      return createSqlMapTypeSpec(((SqlMapTypeNameSpec) rowTypeNameSpec).getKeyTypeSpec(),((SqlMapTypeNameSpec) rowTypeNameSpec).getValTypeSpec());
+      return createSqlMapTypeSpec(((SqlMapTypeNameSpec) rowTypeNameSpec).getKeyTypeSpec(),
+          ((SqlMapTypeNameSpec) rowTypeNameSpec).getValTypeSpec());
     }
 
     return type;
@@ -151,10 +150,13 @@ public class CharSetSupportTransformer extends SqlCallTransformer {
 
   private static SqlMapTypeSpec createSqlMapTypeSpec(SqlDataTypeSpec keyType, SqlDataTypeSpec valType) {
 
-    SqlBasicTypeNameSpec newKeyType = createNoCharSetSqlBasicTypeNameSpec(keyType.getTypeName().toString(), (SqlBasicTypeNameSpec) keyType.getTypeNameSpec());
-    SqlBasicTypeNameSpec newValType = createNoCharSetSqlBasicTypeNameSpec(valType.getTypeName().toString(), (SqlBasicTypeNameSpec) valType.getTypeNameSpec());
+    SqlBasicTypeNameSpec newKeyType = createNoCharSetSqlBasicTypeNameSpec(keyType.getTypeName().toString(),
+        (SqlBasicTypeNameSpec) keyType.getTypeNameSpec());
+    SqlBasicTypeNameSpec newValType = createNoCharSetSqlBasicTypeNameSpec(valType.getTypeName().toString(),
+        (SqlBasicTypeNameSpec) valType.getTypeNameSpec());
 
-    return new SqlMapTypeSpec(createSqlDataTypeSpec(keyType, newKeyType), createSqlDataTypeSpec(valType, newValType), ZERO);
+    return new SqlMapTypeSpec(createSqlDataTypeSpec(keyType, newKeyType), createSqlDataTypeSpec(valType, newValType),
+        ZERO);
   }
 
   private static SqlBasicTypeNameSpec createNoCharSetSqlBasicTypeNameSpec(String nameSpecType,
