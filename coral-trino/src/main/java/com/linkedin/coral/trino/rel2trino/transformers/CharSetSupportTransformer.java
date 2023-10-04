@@ -7,19 +7,21 @@ package com.linkedin.coral.trino.rel2trino.transformers;
 
 import java.util.List;
 
+import java.util.stream.Collectors;
 import org.apache.calcite.sql.SqlArrayTypeSpec;
 import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCollectionTypeNameSpec;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlMapTypeNameSpec;
+import org.apache.calcite.sql.SqlMapTypeSpec;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlRowTypeNameSpec;
 import org.apache.calcite.sql.SqlRowTypeSpec;
 import org.apache.calcite.sql.SqlTypeNameSpec;
 import org.apache.calcite.sql.type.SqlTypeName;
 
-import com.linkedin.coral.com.google.common.collect.ImmutableList;
 import com.linkedin.coral.common.transformers.SqlCallTransformer;
 
 import static org.apache.calcite.sql.parser.SqlParserPos.*;
@@ -76,73 +78,65 @@ public class CharSetSupportTransformer extends SqlCallTransformer {
         sqlCall.setOperand(1, createSqlArrayTypeSpec(dataTypeSpec, newBasicTypeNameSpec));
       }
     } else if (typeNameSpec instanceof SqlRowTypeNameSpec) {
-      sqlCall.setOperand(1, transformRows((SqlRowTypeSpec) targetDataType));
+      sqlCall.setOperand(1, transformRow((SqlRowTypeSpec) targetDataType));
     }
 
     return sqlCall;
   }
 
-  private static SqlRowTypeSpec transformRows(SqlRowTypeSpec rowTypeSpec) {
+
+  private static SqlRowTypeSpec transformRow(SqlRowTypeSpec rowTypeSpec) {
     String nameSpecType;
     List<SqlDataTypeSpec> fieldTypeSpecs = rowTypeSpec.getFieldTypeSpecs();
-    // TODO: use map
-    for (int j = 0; j < fieldTypeSpecs.size(); j++) {
-      SqlDataTypeSpec rowDataTypeSpec = rowTypeSpec.getFieldTypeSpecs().get(j);
-      SqlTypeNameSpec rowTypeNameSpec = rowDataTypeSpec.getTypeNameSpec();
-      nameSpecType = rowTypeNameSpec.getTypeName().toString();
+    return new SqlRowTypeSpec(rowTypeSpec.getFieldNames(),
+        fieldTypeSpecs.stream().map(CharSetSupportTransformer::transformRowItem).collect(Collectors.toList()),
+        rowTypeSpec.getParserPosition());
 
-      if (rowDataTypeSpec instanceof SqlArrayTypeSpec) {
-        String elementTypeName = ((SqlArrayTypeSpec) rowDataTypeSpec).getElementTypeSpec().getTypeName().toString();
-        if (elementTypeName == "VARCHAR" || elementTypeName == "CHAR") {
-          SqlCollectionTypeNameSpec sqlCollectionTypeNameSpec = (SqlCollectionTypeNameSpec) rowTypeNameSpec;
-          SqlBasicTypeNameSpec newBasicTypeNameSpec = createNoCharSetSqlBasicTypeNameSpec(elementTypeName,
-              (SqlBasicTypeNameSpec) sqlCollectionTypeNameSpec.getElementTypeName());
+//
+//    for (int j = 0; j < fieldTypeSpecs.size(); j++) {
+//      SqlRowTypeSpec rowTypeSpec1 = transformRow(rowTypeSpec, fieldTypeSpecs, j);
+////      if (rowTypeSpec1 != null) {
+////        return rowTypeSpec1;
+////      }
+//    }
 
-          if (fieldTypeSpecs.size() == 1) {
-            // SingletonImmutableList
-            List<SqlDataTypeSpec> sqlDataTypeSpecImmutableList =
-                ImmutableList.of(createSqlArrayTypeSpec(rowDataTypeSpec, newBasicTypeNameSpec));
+  }
 
-            return new SqlRowTypeSpec(rowTypeSpec.getFieldNames(), sqlDataTypeSpecImmutableList,
-                rowTypeSpec.getNullable(), rowDataTypeSpec.getParserPosition());
-          } else {
-            fieldTypeSpecs.set(j, createSqlArrayTypeSpec(rowDataTypeSpec, newBasicTypeNameSpec));
-          }
-        } else if (elementTypeName == "ROW") {
-          fieldTypeSpecs.set(j, transformRows((SqlRowTypeSpec) rowDataTypeSpec));
-        }
+  private static SqlDataTypeSpec transformRowItem(SqlDataTypeSpec type) {
+    SqlTypeNameSpec rowTypeNameSpec = type.getTypeNameSpec();
+    String nameSpecType = rowTypeNameSpec.getTypeName().toString();
 
-      } else if (rowTypeNameSpec instanceof SqlBasicTypeNameSpec
-          && (nameSpecType == "CHAR" || nameSpecType == "VARCHAR")) {
-        SqlBasicTypeNameSpec basicTypeNameSpec = (SqlBasicTypeNameSpec) rowTypeNameSpec;
+    if (type instanceof SqlArrayTypeSpec) {
+      String elementTypeName = ((SqlArrayTypeSpec) type).getElementTypeSpec().getTypeName().toString();
+      if (elementTypeName == "VARCHAR" || elementTypeName == "CHAR") {
+        SqlCollectionTypeNameSpec sqlCollectionTypeNameSpec = (SqlCollectionTypeNameSpec) rowTypeNameSpec;
+        SqlBasicTypeNameSpec newBasicTypeNameSpec = createNoCharSetSqlBasicTypeNameSpec(elementTypeName,
+            (SqlBasicTypeNameSpec) sqlCollectionTypeNameSpec.getElementTypeName());
 
-        if (fieldTypeSpecs.size() == 1) {
-          // SingletonImmutableList
-          List<SqlDataTypeSpec> sqlDataTypeSpecImmutableList =
-              ImmutableList.of(createSqlArrayTypeSpec(rowDataTypeSpec, basicTypeNameSpec));
+        return createSqlArrayTypeSpec(type, newBasicTypeNameSpec);
 
-          return new SqlRowTypeSpec(rowTypeSpec.getFieldNames(), sqlDataTypeSpecImmutableList,
-              rowTypeSpec.getNullable(), rowDataTypeSpec.getParserPosition());
-        } else {
-
-          fieldTypeSpecs.set(j, createSqlDataTypeSpec(rowDataTypeSpec,
-              createNoCharSetSqlBasicTypeNameSpec(nameSpecType, basicTypeNameSpec)));
-        }
-
-      } else if (rowTypeNameSpec instanceof SqlRowTypeNameSpec) {
-
-        if (fieldTypeSpecs.size() == 1) {
-          // SingletonImmutableList
-
-          return transformRows((SqlRowTypeSpec) rowDataTypeSpec);
-        } else {
-          fieldTypeSpecs.set(j, transformRows((SqlRowTypeSpec) rowDataTypeSpec));
-
-        }
+      } else if (elementTypeName == "ROW") {
+        // ARRAY<ROW(`entityurn` VARCHAR(65535) CHARACTER SET `ISO-8859-1`, `resulttype` CHAR(6) CHARACTER SET `ISO-8859-1`, `absoluteposition` INTEGER, `positioninvertical` INTEGER, `iscachehit` BOOLEAN, `isanonymized` BOOLEAN, `hitinfo` ROW(`secondarysearchresultinfo` ROW(`vertical` VARCHAR(65535) CHARACTER SET `ISO-8859-1`), `entityawaresuggestioninfo` ROW(`suggestedentities` ARRAY<VARCHAR(65535) CHARACTER SET `ISO-8859-1`>)), `gridposition` ROW(`row` INTEGER, `column` INTEGER), `isnamematch` BOOLEAN, `trackingid` BINARY)>
+        return transformRow((SqlRowTypeSpec) ((SqlArrayTypeSpec) type).getElementTypeSpec());
       }
+
+    } else if (rowTypeNameSpec instanceof SqlBasicTypeNameSpec
+        && (nameSpecType == "CHAR" || nameSpecType == "VARCHAR")) {
+      SqlBasicTypeNameSpec basicTypeNameSpec = (SqlBasicTypeNameSpec) rowTypeNameSpec;
+
+      return createSqlDataTypeSpec(type,
+            createNoCharSetSqlBasicTypeNameSpec(nameSpecType, basicTypeNameSpec));
+
+    } else if (rowTypeNameSpec instanceof SqlRowTypeNameSpec) {
+
+        return transformRow((SqlRowTypeSpec) type);
+    } else if (rowTypeNameSpec instanceof SqlMapTypeNameSpec) {
+      // MAP<VARCHAR(2147483647) CHARACTER SET `ISO-8859-1`, VARCHAR(2147483647) CHARACTER SET `ISO-8859-1`>
+
+      return createSqlMapTypeSpec(((SqlMapTypeNameSpec) rowTypeNameSpec).getKeyTypeSpec(),((SqlMapTypeNameSpec) rowTypeNameSpec).getValTypeSpec());
     }
 
-    return rowTypeSpec;
+    return type;
   }
 
   private static SqlDataTypeSpec createSqlDataTypeSpec(SqlDataTypeSpec dataTypeSpec,
@@ -153,6 +147,14 @@ public class CharSetSupportTransformer extends SqlCallTransformer {
   private static SqlArrayTypeSpec createSqlArrayTypeSpec(SqlDataTypeSpec dataTypeSpec,
       SqlBasicTypeNameSpec newBasicTypeNameSpec) {
     return new SqlArrayTypeSpec(createSqlDataTypeSpec(dataTypeSpec, newBasicTypeNameSpec), ZERO);
+  }
+
+  private static SqlMapTypeSpec createSqlMapTypeSpec(SqlDataTypeSpec keyType, SqlDataTypeSpec valType) {
+
+    SqlBasicTypeNameSpec newKeyType = createNoCharSetSqlBasicTypeNameSpec(keyType.getTypeName().toString(), (SqlBasicTypeNameSpec) keyType.getTypeNameSpec());
+    SqlBasicTypeNameSpec newValType = createNoCharSetSqlBasicTypeNameSpec(valType.getTypeName().toString(), (SqlBasicTypeNameSpec) valType.getTypeNameSpec());
+
+    return new SqlMapTypeSpec(createSqlDataTypeSpec(keyType, newKeyType), createSqlDataTypeSpec(valType, newValType), ZERO);
   }
 
   private static SqlBasicTypeNameSpec createNoCharSetSqlBasicTypeNameSpec(String nameSpecType,
