@@ -127,7 +127,7 @@ public class CoralToTrinoSqlCallConverter extends SqlShuttle {
         new GenericCoralRegistryOperatorRenameSqlCallTransformer(),
 
         new ReturnTypeAdjustmentTransformer(configs), new UnnestOperatorTransformer(), new AsOperatorTransformer(),
-        new JoinSqlCallTransformer(), new NullOrderingTransformer(), new CharSetSupportTransformer());
+        new JoinSqlCallTransformer(), new NullOrderingTransformer());
   }
 
   private SqlOperator hiveToCoralSqlOperator(String functionName) {
