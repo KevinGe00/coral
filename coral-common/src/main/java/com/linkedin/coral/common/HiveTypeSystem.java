@@ -14,6 +14,7 @@ import org.apache.calcite.sql.type.SqlTypeUtil;
 
 // Copied from Hive source code before HIVE-22978 patch
 public class HiveTypeSystem extends RelDataTypeSystemImpl {
+  // TODO: Rename to CoralTypeSystem
   // TODO: This should come from type system; Currently there is no definition
   // in type system for this.
   private static final int MAX_DECIMAL_PRECISION = 38;
