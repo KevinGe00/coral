@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2023 LinkedIn Corporation. All rights reserved.
+ * Copyright 2018-2024 LinkedIn Corporation. All rights reserved.
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
@@ -16,8 +16,6 @@ import org.apache.calcite.sql2rel.SqlRexContext;
 import org.apache.calcite.sql2rel.SqlRexConvertlet;
 import org.apache.calcite.sql2rel.StandardConvertletTable;
 
-import com.linkedin.coral.common.functions.FunctionFieldReferenceOperator;
-
 
 /**
  * ConvertletTable for Hive Operators
@@ -25,13 +23,13 @@ import com.linkedin.coral.common.functions.FunctionFieldReferenceOperator;
  */
 public class HiveConvertletTable extends ReflectiveConvertletTable {
 
-  @SuppressWarnings("unused")
-  public RexNode convertFunctionFieldReferenceOperator(SqlRexContext cx, FunctionFieldReferenceOperator op,
-      SqlCall call) {
-    RexNode funcExpr = cx.convertExpression(call.operand(0));
-    String fieldName = FunctionFieldReferenceOperator.fieldNameStripQuotes(call.operand(1));
-    return cx.getRexBuilder().makeFieldAccess(funcExpr, fieldName, false);
-  }
+  //  @SuppressWarnings("unused")
+  //  public RexNode convertFunctionFieldReferenceOperator(SqlRexContext cx, FunctionFieldReferenceOperator op,
+  //      SqlCall call) {
+  //    RexNode funcExpr = cx.convertExpression(call.operand(0));
+  //    String fieldName = FunctionFieldReferenceOperator.fieldNameStripQuotes(call.operand(1));
+  //    return cx.getRexBuilder().makeFieldAccess(funcExpr, fieldName, false);
+  //  }
 
   @SuppressWarnings("unused")
   public RexNode convertCast(SqlRexContext cx, SqlCastFunction cast, SqlCall call) {
