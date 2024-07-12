@@ -23,14 +23,6 @@ import org.apache.calcite.sql2rel.StandardConvertletTable;
  */
 public class HiveConvertletTable extends ReflectiveConvertletTable {
 
-  //  @SuppressWarnings("unused")
-  //  public RexNode convertFunctionFieldReferenceOperator(SqlRexContext cx, FunctionFieldReferenceOperator op,
-  //      SqlCall call) {
-  //    RexNode funcExpr = cx.convertExpression(call.operand(0));
-  //    String fieldName = FunctionFieldReferenceOperator.fieldNameStripQuotes(call.operand(1));
-  //    return cx.getRexBuilder().makeFieldAccess(funcExpr, fieldName, false);
-  //  }
-
   @SuppressWarnings("unused")
   public RexNode convertCast(SqlRexContext cx, SqlCastFunction cast, SqlCall call) {
     final SqlNode left = call.operand(0);
