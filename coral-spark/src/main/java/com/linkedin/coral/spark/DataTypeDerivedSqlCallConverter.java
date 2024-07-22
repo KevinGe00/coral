@@ -17,6 +17,7 @@ import com.linkedin.coral.common.utils.TypeDerivationUtil;
 import com.linkedin.coral.hive.hive2rel.HiveToRelConverter;
 import com.linkedin.coral.spark.containers.SparkUDFInfo;
 import com.linkedin.coral.spark.transformers.ExtractUnionFunctionTransformer;
+import com.linkedin.coral.spark.transformers.ToZeroBasedArrayIndexTransformer;
 
 
 /**
@@ -37,7 +38,8 @@ public class DataTypeDerivedSqlCallConverter extends SqlShuttle {
     toRelConverter = new HiveToRelConverter(mscClient);
     typeDerivationUtil = new TypeDerivationUtil(toRelConverter.getSqlValidator(), topSqlNode);
     operatorTransformerList =
-        SqlCallTransformers.of(new ExtractUnionFunctionTransformer(typeDerivationUtil, sparkUDFInfos));
+        SqlCallTransformers.of(new ExtractUnionFunctionTransformer(typeDerivationUtil, sparkUDFInfos),
+            new ToZeroBasedArrayIndexTransformer(typeDerivationUtil));
   }
 
   @Override
