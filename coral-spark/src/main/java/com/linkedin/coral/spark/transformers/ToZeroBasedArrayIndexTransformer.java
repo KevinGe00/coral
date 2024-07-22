@@ -24,15 +24,10 @@ import com.linkedin.coral.common.utils.TypeDerivationUtil;
  * The transformation involves changing the index of the array reference to be zero-based since Coral RelNode stores
  * array indexes with a +1.
  *
- * Example 1:
- *   SELECT array_col[1] FROM table
+ * Example:
+ *   Hive:  SELECT array_col[size(array_col) - 1] FROM table
  *    is translated to
- *   SELECT array_col[0] FROM table
- *
- * Example 2:
- *   SELECT array_col[size(array_col) - 1] FROM table
- *    is translated to
- *   SELECT array_col[size(array_col) + 1 - 1] FROM table
+ *   Spark: SELECT array_col[size(array_col) - 1 + 1 - 1] FROM table
  *    where plus 1 came from Calcite and minus 1 comes from this transformer
  *
  */
