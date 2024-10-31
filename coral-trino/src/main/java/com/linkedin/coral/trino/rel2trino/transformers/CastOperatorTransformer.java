@@ -8,6 +8,8 @@ package com.linkedin.coral.trino.rel2trino.transformers;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDataTypeSpec;
@@ -17,7 +19,6 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.type.SqlTypeName;
 
-import com.linkedin.coral.com.google.common.collect.ImmutableSet;
 import com.linkedin.coral.common.calcite.CalciteUtil;
 import com.linkedin.coral.common.transformers.SqlCallTransformer;
 import com.linkedin.coral.common.utils.TypeDerivationUtil;

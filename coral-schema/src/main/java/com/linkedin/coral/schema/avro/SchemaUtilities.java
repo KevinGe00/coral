@@ -1,5 +1,5 @@
 /**
- * Copyright 2019-2023 LinkedIn Corporation. All rights reserved.
+ * Copyright 2019-2024 LinkedIn Corporation. All rights reserved.
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.linkedin.avroutil1.compatibility.AvroCompatibilityHelper;
 
@@ -40,8 +42,6 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.linkedin.coral.com.google.common.base.Preconditions;
-import com.linkedin.coral.com.google.common.base.Strings;
 import com.linkedin.coral.schema.avro.exceptions.SchemaNotFoundException;
 
 import static com.linkedin.coral.schema.avro.AvroSerdeUtils.*;

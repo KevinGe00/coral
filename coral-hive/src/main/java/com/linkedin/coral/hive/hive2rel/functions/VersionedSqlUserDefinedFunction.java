@@ -8,6 +8,8 @@ package com.linkedin.coral.hive.hive2rel.functions;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Converter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -24,9 +26,6 @@ import org.apache.calcite.sql.type.SqlReturnTypeInference;
 import org.apache.calcite.sql.validate.SqlUserDefinedFunction;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
-
-import com.linkedin.coral.com.google.common.base.CaseFormat;
-import com.linkedin.coral.com.google.common.base.Converter;
 
 
 /**

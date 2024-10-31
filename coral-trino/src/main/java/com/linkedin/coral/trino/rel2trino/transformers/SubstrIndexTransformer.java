@@ -9,13 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNumericLiteral;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 
-import com.linkedin.coral.com.google.common.collect.ImmutableSet;
 import com.linkedin.coral.common.calcite.CalciteUtil;
 import com.linkedin.coral.common.transformers.SqlCallTransformer;
 

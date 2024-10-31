@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
 import org.apache.calcite.avatica.util.TimeUnit;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
@@ -43,8 +46,6 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.hadoop.hive.metastore.api.Table;
 
-import com.linkedin.coral.com.google.common.collect.ImmutableList;
-import com.linkedin.coral.com.google.common.collect.Iterables;
 import com.linkedin.coral.common.functions.CoralSqlUnnestOperator;
 import com.linkedin.coral.common.functions.Function;
 import com.linkedin.coral.common.functions.FunctionFieldReferenceOperator;

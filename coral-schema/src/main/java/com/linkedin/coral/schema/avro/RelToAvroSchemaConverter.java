@@ -14,6 +14,8 @@ import java.util.Queue;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.base.Preconditions;
+
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.calcite.rel.RelNode;
@@ -56,7 +58,6 @@ import org.apache.hadoop.hive.metastore.api.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.linkedin.coral.com.google.common.base.Preconditions;
 import com.linkedin.coral.common.HiveMetastoreClient;
 import com.linkedin.coral.common.HiveUncollect;
 import com.linkedin.coral.hive.hive2rel.functions.OrdinalReturnTypeInferenceV2;

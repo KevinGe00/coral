@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import org.apache.calcite.sql.SqlBinaryOperator;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -28,8 +31,6 @@ import org.apache.calcite.sql.type.SqlTypeFamily;
 import org.apache.calcite.sql.validate.SqlUserDefinedFunction;
 import org.apache.hadoop.hive.metastore.api.Table;
 
-import com.linkedin.coral.com.google.common.base.Preconditions;
-import com.linkedin.coral.com.google.common.collect.ImmutableList;
 import com.linkedin.coral.common.HiveTable;
 import com.linkedin.coral.common.functions.Function;
 import com.linkedin.coral.common.functions.FunctionRegistry;

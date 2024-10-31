@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2023 LinkedIn Corporation. All rights reserved.
+ * Copyright 2018-2024 LinkedIn Corporation. All rights reserved.
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
@@ -7,6 +7,8 @@ package com.linkedin.coral.hive.hive2rel;
 
 import java.io.File;
 import java.io.IOException;
+
+import com.google.common.collect.ImmutableList;
 
 import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
@@ -20,7 +22,6 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.linkedin.coral.com.google.common.collect.ImmutableList;
 import com.linkedin.coral.common.HiveMscAdapter;
 import com.linkedin.coral.common.ToRelConverterTestUtils;
 import com.linkedin.coral.hive.hive2rel.functions.StaticHiveFunctionRegistry;

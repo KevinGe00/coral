@@ -14,6 +14,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
@@ -26,10 +30,6 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.*;
 import org.apache.calcite.sql.validate.SqlUserDefinedFunction;
 
-import com.linkedin.coral.com.google.common.collect.HashMultimap;
-import com.linkedin.coral.com.google.common.collect.ImmutableList;
-import com.linkedin.coral.com.google.common.collect.ImmutableMultimap;
-import com.linkedin.coral.com.google.common.collect.Multimap;
 import com.linkedin.coral.common.functions.CoralSqlUnnestOperator;
 import com.linkedin.coral.common.functions.Function;
 import com.linkedin.coral.common.functions.FunctionRegistry;
