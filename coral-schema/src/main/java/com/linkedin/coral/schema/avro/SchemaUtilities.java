@@ -216,6 +216,10 @@ class SchemaUtilities {
     Preconditions.checkNotNull(fieldRelDataType);
     Preconditions.checkNotNull(fieldAssembler);
 
+    // isNullable only encodes the nullability of the outermost field, so for example, if field is a record type,
+    // isNullable only encodes whether the record itself is nullable, not whether any of its fields are nullable.
+    // The field nullabilities, in the case of ordinal return types have to use inputSchema as reference. This has to
+    // happen before the line below.
     Schema fieldSchema = RelDataTypeToAvroType.relDataTypeToAvroTypeNonNullable(fieldRelDataType, fieldName);
 
     // TODO: handle default value properly
@@ -237,6 +241,11 @@ class SchemaUtilities {
       return rexCall.getType().isNullable();
     }
 
+    // add logic to use returntypeinference to determine nullability, with the base table input schema to
+    // derive rexcall's nullability
+
+    // use calcite's SqlReturnTypeInference inferReturnType method, to determine nullability
+
     // the field is non-nullable only if all operands are RexInputRef
     // and corresponding field schema type of RexInputRef index is not UNION
     List<RexNode> operands = rexCall.getOperands();
@@ -247,6 +256,11 @@ class SchemaUtilities {
           return true;
         }
       } else if (operand instanceof RexCall) {
+        // handle nested udf call here
+
+        // this is technically incorrect as we are simply returning the nullability of the operand and using that,
+        // so udf(field1) will be nullable if field1 is nullable, which is incorrect in the case of ordinals, we catch,
+        // this specific ordinal case in visitCall but should be generalized here instead if possible
         boolean isNullable = isFieldNullable((RexCall) operand, inputSchema);
         if (isNullable) {
           return true;

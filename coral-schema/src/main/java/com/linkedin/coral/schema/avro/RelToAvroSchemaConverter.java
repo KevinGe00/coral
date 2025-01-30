@@ -5,6 +5,9 @@
  */
 package com.linkedin.coral.schema.avro;
 
+import com.linkedin.coral.common.CoralJavaTypeFactoryImpl;
+import com.linkedin.coral.common.HiveTypeSystem;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -16,6 +19,8 @@ import javax.annotation.Nonnull;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.calcite.rel.RelCollation;
+import org.apache.calcite.rel.RelCollations;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.RelShuttleImpl;
 import org.apache.calcite.rel.core.AggregateCall;
@@ -37,6 +42,7 @@ import org.apache.calcite.rel.logical.LogicalValues;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rex.RexCall;
+import org.apache.calcite.rex.RexCallBinding;
 import org.apache.calcite.rex.RexCorrelVariable;
 import org.apache.calcite.rex.RexDynamicParam;
 import org.apache.calcite.rex.RexFieldAccess;
@@ -50,6 +56,7 @@ import org.apache.calcite.rex.RexRangeRef;
 import org.apache.calcite.rex.RexShuttle;
 import org.apache.calcite.rex.RexSubQuery;
 import org.apache.calcite.rex.RexTableInputRef;
+import org.apache.calcite.sql.type.SqlReturnTypeInference;
 import org.apache.calcite.sql.validate.SqlUserDefinedFunction;
 import org.apache.calcite.util.Pair;
 import org.apache.hadoop.hive.metastore.api.Table;
@@ -442,17 +449,31 @@ public class RelToAvroSchemaConverter {
        * and the corresponding input argument refers to a field from the input schema,
        * use the field's schema as is.
        */
-      if (rexCall.getOperator().getReturnTypeInference() instanceof OrdinalReturnTypeInferenceV2) {
-        int index = ((OrdinalReturnTypeInferenceV2) rexCall.getOperator().getReturnTypeInference()).getOrdinal();
-        RexNode operand = rexCall.operands.get(index);
+//      if (rexCall.getOperator().getReturnTypeInference() instanceof OrdinalReturnTypeInferenceV2) {
+//        int index = ((OrdinalReturnTypeInferenceV2) rexCall.getOperator().getReturnTypeInference()).getOrdinal();
+//        RexNode operand = rexCall.operands.get(index);
+//
+//        if (operand instanceof RexInputRef) {
+//          appendRexInputRefField((RexInputRef) operand);
+//          return rexCall;
+//        }
+//      }
 
-        if (operand instanceof RexInputRef) {
-          appendRexInputRefField((RexInputRef) operand);
-          return rexCall;
-        }
-      }
+      // Prototype to systematically infer the return type, including currently nullabilities, of any UDF/Call
+      // generally/systematically using the
+      // return type inference object embedded in RexCall's operator. The goal of which is so remove the need to target
+      // specific return types (as we do on lines 452-460 for Ordinal return types) where the logic is currently brittle
+      // as we've seen in BDP-25538.
 
-      RelDataType fieldType = rexCall.getType();
+      // This prototype works for most cases, but not all. Ordinal return types are still returning incorrect nullabilities
+      // since the ordinal return type inference object does not have access to the input schema and inferReturnType() will
+      // simply return the RelDataType of the input schema field, which does not encode the correct nullability information.
+
+      // Regardless of where we place it, there will be some logic to specifically handle ordinal return types to
+      // correctly infer nullability using the input schema.
+      SqlReturnTypeInference returnTypeInference = rexCall.getOperator().getReturnTypeInference();
+      RelDataType fieldType = returnTypeInference.inferReturnType(RexCallBinding.create(new CoralJavaTypeFactoryImpl(new HiveTypeSystem()), rexCall, Collections.emptyList()));
+//      RelDataType fieldType = rexCall.getType();
       boolean isNullable = SchemaUtilities.isFieldNullable(rexCall, inputSchema);
 
       appendField(fieldType, isNullable,
